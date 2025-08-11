@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Game Viên Bi Vào Lỗ Đen</title>
+<title>Game Thả Viên Bi Vào Lỗ Đen</title>
 <style>
 * {
 box-sizing: border-box;
@@ -175,7 +175,7 @@ const ctx = canvas.getContext("2d");
     
       let dx = ball.x - hole.x;
       let dy = ball.y - hole.y;
-      let dist = Math.sqrt(dx  dx + dy  dy);
+      let dist = Math.sqrt(dx * dx + dy * dy);
       if (dist < hole.radius - ball.radius) {
         score++;
         document.getElementById("score").textContent = score;
@@ -200,7 +200,7 @@ const ctx = canvas.getContext("2d");
     }
     
     function endGame() {
-      alert(🎮 Trò chơi kết thúc!\nĐiểm của bạn: ${score});
+      alert(`🎮 Trò chơi kết thúc!\nĐiểm của bạn: ${score}`);
       saveScore(score);
       lives = 5;
       score = 0;
