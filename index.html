@@ -1,95 +1,103 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game Viên Bi & Lỗ Đen</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: #f9f9f9;
-    }
-    h2 {
-      margin-top: 1rem;
-      font-size: 1.5rem;
-    }
-    canvas {
-      width: 100%;
-      max-width: 800px;
-      height: auto;
-      aspect-ratio: 2 / 1;
-      background: #f0f0f0;
-      border: 1px solid #ccc;
-    }
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-      margin-top: 1rem;
-      width: 90%;
-      max-width: 800px;
-    }
-    .slider-group {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .slider-label {
-      margin-bottom: 5px;
-    }
-    input[type="range"] {
-      width: 300px;
-    }
-    .vertical-slider {
-      writing-mode: bt-lr;
-      -webkit-appearance: slider-vertical;
-      height: 150px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 1rem;
-      margin-top: 10px;
-      width: 100%;
-      max-width: 300px;
-    }
-    .info {
-      margin-top: 10px;
-      font-size: 1rem;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Viên Bi Vào Lỗ Đen</title>
+<style>
+* {
+box-sizing: border-box;
+}
+body {
+margin: 0;
+font-family: sans-serif;
+display: flex;
+flex-direction: column;
+align-items: center;
+background: #f9f9f9;
+}
+h2 {
+margin-top: 1rem;
+font-size: 1.5rem;
+}
+canvas {
+width: 100%;
+max-width: 800px;
+height: auto;
+aspect-ratio: 2 / 1;
+background: #f0f0f0;
+border: 1px solid #ccc;
+}
+.controls {
+display: flex;
+flex-wrap: wrap;
+justify-content: center;
+gap: 20px;
+margin-top: 1rem;
+width: 90%;
+max-width: 800px;
+}
+.slider-group {
+display: flex;
+flex-direction: column;
+align-items: center;
+}
+.slider-label {
+margin-bottom: 5px;
+}
+input[type="range"] {
+width: 300px;
+}
+.vertical-slider {
+writing-mode: vertical-lr;
+height: 150px;
+}
+button {
+padding: 10px 20px;
+font-size: 1rem;
+margin-top: 10px;
+width: 100%;
+max-width: 300px;
+}
+.info {
+margin-top: 10px;
+font-size: 1rem;
+}
+.scoreboard {
+margin-top: 10px;
+font-size: 0.9rem;
+}
+</style>
 </head>
 <body>
-  <h2>🎯 Game Viên Bi & Lỗ Đen</h2>
-  <canvas id="gameCanvas"></canvas>
+<h2>🎯 Game Thả Bi Vào Lỗ Đen</h2>
+<p>Điều chỉnh lực và hướng để thả viên bi lăn vào lỗ đen.</p>
+<canvas id="gameCanvas"></canvas>
 
-  <div class="controls">
-    <div class="slider-group">
-      <div class="slider-label">Vận tốc ngang (vx)</div>
-      <input type="range" id="vxInput" min="-10" max="10" step="0.1" value="0">
-    </div>
-    <div class="slider-group">
-      <div class="slider-label">Vận tốc dọc (vy)</div>
-      <input type="range" id="vyInput" min="-10" max="10" step="0.1" value="0" class="vertical-slider">
-    </div>
-  </div>
+<div class="controls">
+<div class="slider-group">
+<div class="slider-label">Hướng (vx): <span id="vxValue">0</span></div>
+<input type="range" id="vxInput" min="-10" max="10" step="0.1" value="0">
+</div>
+<div class="slider-group">
+<div class="slider-label">Lực (vy): <span id="vyValue">0</span></div>
+<input type="range" id="vyInput" min="-10" max="10" step="0.1" value="0" class="vertical-slider">
+</div>
+</div>
 
-  <button id="launchBtn">Thả viên bi</button>
+<button id="launchBtn">Thả bi</button>
 
-  <div class="info">
-    ❤️ Mạng: <span id="lives">5</span> | 🔄 Màn: <span id="level">1</span>
-  </div>
+<div class="info">
+❤️ Mạng: <span id="lives">5</span> | ⭐ Điểm: <span id="score">0</span>
+</div>
+<div class="scoreboard">
+🏆 Điểm cao nhất: <span id="highScore">0</span><br>
+📜 Lịch sử điểm: <span id="scoreHistory">[]</span>
+</div>
 
-  <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
     function resizeCanvas() {
       canvas.width = canvas.clientWidth;
@@ -97,18 +105,23 @@
     }
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
-
+    
     const vxInput = document.getElementById("vxInput");
     const vyInput = document.getElementById("vyInput");
-
+    const vxValue = document.getElementById("vxValue");
+    const vyValue = document.getElementById("vyValue");
+    
+    vxInput.oninput = () => vxValue.textContent = vxInput.value;
+    vyInput.oninput = () => vyValue.textContent = vyInput.value;
+    
     let ball = null;
     let hole = null;
     let gravity = 0.5;
     let lives = 5;
-    let level = 1;
+    let score = 0;
     let launched = false;
     let waitToReset = false;
-
+    
     function resetLevel() {
       ball = {
         x: canvas.width * 0.1,
@@ -125,7 +138,7 @@
       launched = false;
       waitToReset = false;
     }
-
+    
     function drawBall() {
       ctx.beginPath();
       ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
@@ -133,7 +146,7 @@
       ctx.fill();
       ctx.closePath();
     }
-
+    
     function drawHole() {
       ctx.beginPath();
       ctx.arc(hole.x, hole.y, hole.radius, Math.PI, 0); // nửa hình cầu
@@ -141,35 +154,35 @@
       ctx.fill();
       ctx.closePath();
     }
-
+    
     function updateBall() {
       if (!launched || waitToReset) return;
-
+    
       ball.vy += gravity;
       ball.x += ball.vx;
       ball.y += ball.vy;
-
+    
       if (ball.y + ball.radius > canvas.height) {
         ball.y = canvas.height - ball.radius;
         ball.vy *= -0.6;
         ball.vx *= 0.98;
         if (Math.abs(ball.vy) < 0.8) ball.vy = 0;
       }
-
+    
       if (ball.x - ball.radius < 0 || ball.x + ball.radius > canvas.width) {
         ball.vx *= -0.6;
       }
-
+    
       let dx = ball.x - hole.x;
       let dy = ball.y - hole.y;
-      let dist = Math.sqrt(dx * dx + dy * dy);
+      let dist = Math.sqrt(dx  dx + dy  dy);
       if (dist < hole.radius - ball.radius) {
-        level++;
-        document.getElementById("level").textContent = level;
+        score++;
+        document.getElementById("score").textContent = score;
         waitToReset = true;
         setTimeout(() => resetLevel(), 1000);
       }
-
+    
       if (
         Math.abs(ball.vx) < 0.2 &&
         Math.abs(ball.vy) === 0 &&
@@ -179,16 +192,52 @@
         lives--;
         document.getElementById("lives").textContent = lives;
         if (lives <= 0) {
-          alert("💀 Bạn đã thua! Bắt đầu lại.");
-          lives = 5;
-          level = 1;
-          document.getElementById("lives").textContent = lives;
-          document.getElementById("level").textContent = level;
+          endGame();
+        } else {
+          setTimeout(() => resetLevel(), 1000);
         }
-        setTimeout(() => resetLevel(), 1000);
       }
     }
-
+    
+    function endGame() {
+      alert(🎮 Trò chơi kết thúc!\nĐiểm của bạn: ${score});
+      saveScore(score);
+      lives = 5;
+      score = 0;
+      document.getElementById("lives").textContent = lives;
+      document.getElementById("score").textContent = score;
+      updateScoreboard();
+      resetLevel();
+    }
+    
+    function saveScore(newScore) {
+      let history = JSON.parse(localStorage.getItem("scoreHistory") || "[]");
+      history.push(newScore);
+      localStorage.setItem("scoreHistory", JSON.stringify(history));
+    
+      let high = Math.max(...history);
+      localStorage.setItem("highScore", high);
+    }
+    
+    function updateScoreboard() {
+      let history = JSON.parse(localStorage.getItem("scoreHistory") || "[]");
+      let high = localStorage.getItem("highScore") || 0;
+      document.getElementById("highScore").textContent = high;
+      document.getElementById("scoreHistory").textContent = JSON.stringify(history);
+    }
+    
+    document.getElementById("launchBtn").onclick = () => {
+      if (!launched && !waitToReset) {
+        ball.vx = parseFloat(vxInput.value);
+        ball.vy = parseFloat(vyInput.value);
+        launched = true;
+      }
+    };
+    
+    resetLevel();
+    updateScoreboard();
+    animate();
+    
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       drawHole();
@@ -197,16 +246,6 @@
       requestAnimationFrame(animate);
     }
 
-    document.getElementById("launchBtn").onclick = () => {
-      if (!launched && !waitToReset) {
-        ball.vx = parseFloat(vxInput.value);
-        ball.vy = parseFloat(vyInput.value);
-        launched = true;
-      }
-    };
-
-    resetLevel();
-    animate();
-  </script>
+</script>
 </body>
 </html>
